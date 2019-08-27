@@ -1,4 +1,4 @@
-package com.facemap;
+package com.buddiesmap;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.facemap", appContext.getPackageName());
+        assertEquals("com.buddiesmap", appContext.getPackageName());
     }
 }

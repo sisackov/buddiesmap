@@ -1,4 +1,4 @@
-package com.facemap;
+package com.buddiesmap;
 
 import org.junit.Test;
 
