@@ -1,6 +1,15 @@
 <resources>
-    <string name="app_name">buddiesmap</string>
+    <string name="app_name">BuddiesMap</string>
     <string name="title_activity_maps">Map</string>
     <string name="facebook_app_id">974066796266267</string>
     <string name="fb_login_protocol_scheme">fb974066796266267</string>
+    <string name="request">User Info</string>
+    <string name="post">Wall Post!</string>
+    <string name="delete">Delete Post</string>
+    <string name="simple_list_2_name">Friends List</string>
+    <string name="friends_list_2">Friends List</string>
+    <string name="hometown_label">Homes</string>
+    <string name="loc_label">Locations</string>
+    <string name="chck_label">Checkins</string>
+    <string name="state_label">Loading Data ...</string>
 </resources>

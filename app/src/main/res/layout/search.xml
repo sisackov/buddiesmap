@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_bg">
+
+    <TableRow>
+
+        <EditText
+            android:id="@+id/searchBar"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:height="67dip"
+            android:hint="Type your friend\'s name"></EditText>
+
+        <ImageButton
+            android:id="@+id/sButton"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/search_48"
+            android:layout_marginLeft="-4dip"></ImageButton>
+    </TableRow>
+</TableLayout>

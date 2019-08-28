@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu 
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	<item 	android:id="@+id/refresh"
+			android:title="Refresh"
+			android:icon="@drawable/refresh"
+			android:orderInCategory="1"></item>
+		
+	<item 	android:id="@+id/searchName" 
+			android:title="Search"
+			android:icon="@drawable/search_40"
+			android:orderInCategory="2"></item>
+								
+	<item	android:id="@+id/flyTo"
+			android:title="Fly to"
+			android:icon="@drawable/fly_to"
+			android:orderInCategory="3"></item>
+	
+	<item	android:id="@+id/logout"
+			android:title="Logout"
+			android:icon="@drawable/ice_cream"
+			android:orderInCategory="4"></item>		
+	
+</menu>
