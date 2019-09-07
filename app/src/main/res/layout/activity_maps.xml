@@ -18,6 +18,7 @@
         android:text="Demo Button" />-->
 
     <LinearLayout
+        android:id="@+id/mapButtons"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start|top"
@@ -28,27 +29,48 @@
 
         <Button
             android:id="@+id/hometownButton"
-            android:layout_width="wrap_content"
+            android:layout_width="110dp"
             android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:drawableLeft="@drawable/home_button"
             android:text="@string/hometown_label"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/locButton"
-            android:layout_width="wrap_content"
+            android:layout_width="110dp"
             android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:drawableLeft="@drawable/cloc_button"
             android:text="@string/loc_label"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/chkButton"
-            android:layout_width="wrap_content"
+            android:layout_width="110dp"
             android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:drawableLeft="@drawable/checkin_button"
             android:text="@string/chck_label"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/fbButtons"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center|bottom"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/fbLoginButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true" />
+
+
     </LinearLayout>
 
 </fragment>
