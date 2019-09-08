@@ -128,7 +128,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
                 LoginManager.getInstance().logInWithReadPermissions(MainActivity.this, Arrays.asList("public_profile", "user_friends",
-                        "user_hometown", "user_location"));
+                        "user_hometown", "user_location", "user_checkins "));
             }
         });
     }
