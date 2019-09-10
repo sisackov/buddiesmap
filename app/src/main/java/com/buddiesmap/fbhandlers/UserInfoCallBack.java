@@ -13,10 +13,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class UserInfoCallBack implements GraphRequest.Callback {
+    private MainActivity mainActivity;
     private UserInfo mLoggedUser;
 
-    public UserInfoCallBack() {
+    public UserInfoCallBack(MainActivity activity) {
         mLoggedUser = new UserInfo();
+        mainActivity = activity;
     }
 
     public void onCompleted(GraphResponse response) {
@@ -37,7 +39,8 @@ public class UserInfoCallBack implements GraphRequest.Callback {
                 mLoggedUser.setUserLocation(jsonObject.getString("name"));
             }
         } catch (JSONException e) {
-            Log.e("UserInfoGraphRequest", e.getMessage());
+            String ex = e.getMessage() == null ? "JSONException in UserInfoCallBack" : e.getMessage();
+            Log.e(getClass().getCanonicalName(), ex);
         }
 
         sendBackIntent();
@@ -45,7 +48,7 @@ public class UserInfoCallBack implements GraphRequest.Callback {
 
     private void sendBackIntent() {
         Intent rtReturn = new Intent(MainActivity.LOGGED_USER_INFO);
-        rtReturn.putExtra("user", mLoggedUser);
-        LocalBroadcastManager.getInstance(null).sendBroadcast(rtReturn);
+        rtReturn.putExtra(MainActivity.LOGGED_USER_INFO, mLoggedUser);
+        LocalBroadcastManager.getInstance(mainActivity).sendBroadcast(rtReturn);
     }
 }
