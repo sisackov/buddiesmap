@@ -1,18 +1,29 @@
 package com.buddiesmap.fbhandlers;
 
-import java.util.Vector;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class UserInfo {
-    private volatile String userName;
-    private volatile String userLocation;
-    private volatile String userHometown;
-    private Vector<String> userFriends;
+import org.jetbrains.annotations.NotNull;
+
+public class UserInfo implements Parcelable {
+    private String userName;
+    private String userLocation;
+    private String userHometown;
+
+    UserInfo() {
+    }
+
+    private UserInfo(@NotNull Parcel in) {
+        userName = in.readString();
+        userLocation = in.readString();
+        userHometown = in.readString();
+    }
 
     public String getUserName() {
         return userName;
     }
 
-    public synchronized void setUserName(String userName) {
+    void setUserName(String userName) {
         this.userName = userName;
     }
 
@@ -20,7 +31,7 @@ public class UserInfo {
         return userLocation;
     }
 
-    public synchronized void setUserLocation(String userLocation) {
+    void setUserLocation(String userLocation) {
         this.userLocation = userLocation;
     }
 
@@ -28,7 +39,29 @@ public class UserInfo {
         return userHometown;
     }
 
-    public synchronized void setUserHometown(String userHometown) {
+    void setUserHometown(String userHometown) {
         this.userHometown = userHometown;
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public UserInfo createFromParcel(Parcel in) {
+            return new UserInfo(in);
+        }
+
+        public UserInfo[] newArray(int size) {
+            return new UserInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int i) {
+        dest.writeString(userName);
+        dest.writeString(userLocation);
+        dest.writeString(userHometown);
     }
 }
