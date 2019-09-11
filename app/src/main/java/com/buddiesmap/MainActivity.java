@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
@@ -15,6 +16,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.buddiesmap.fbhandlers.FacebookLoginCallback;
 import com.buddiesmap.fbhandlers.FacebookLogoutCallback;
 import com.buddiesmap.fbhandlers.FriendsInfoCallBack;
+import com.buddiesmap.fbhandlers.LoggedUser;
 import com.buddiesmap.fbhandlers.UserInfo;
 import com.buddiesmap.fbhandlers.UserInfoCallBack;
 import com.facebook.AccessToken;
@@ -30,9 +32,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import static com.buddiesmap.MapUtils.getLatLongFromString;
 import static com.buddiesmap.MapUtils.getMarkerOption;
@@ -41,43 +50,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     public static final String LOGGED_USER_INFO = "com.buddiesmap.LOGGED_USER_INFO";
     public static final String LOGGED_USER_FRIENDS = "com.buddiesmap.LOGGED_USER_FRIENDS";
-    private static final String EMAIL = "email";
-    private static final String USER_POSTS = "user_posts";
     private static final String AUTH_TYPE = "rerequest";
+    private final List<String> FB_PERMISSIONS = Arrays.asList("public_profile", "user_friends",
+            "user_hometown", "user_location");
+    private final LinkedList<Marker> mHometownMarkers = new LinkedList<>();
+    private final LinkedList<Marker> mLocationMarkers = new LinkedList<>();
     BitmapDescriptor homeIcon;
     BitmapDescriptor locationIcon;
-    LocalBroadcastManager bManager;
-
-    LoginButton mLoginButton;
-    UserInfo mLoggedUser;
+    private LoggedUser mLoggedUser = LoggedUser.getInstance();
     private GoogleMap mMap;
+    private boolean mHometownsVisible = true;
+    private boolean mLocationsVisible = true;
+
     private LinearLayout mapButtons;
     private CallbackManager mCallbackManager;
 
-    //    final Button homeButton = null;
-//    final Button locButton = null;
-//    final Button chkButton = null;
+    private BlockingQueue<UserInfo> mBlockingQ = new LinkedBlockingDeque<>();
 
-    private BroadcastReceiver bReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction() == null)
-                return;
-
-            switch (intent.getAction()) {
-                case LOGGED_USER_INFO:
-                    mLoggedUser = intent.getParcelableExtra(MainActivity.LOGGED_USER_INFO);
-                    updateUserInfoOnMap();
-                    mapButtons.setVisibility(View.VISIBLE);
-                    break;
-                case LOGGED_USER_FRIENDS:
-                    mLoggedUser = intent.getParcelableExtra("friends");
-                    //updateUserInfoOnMap();
-                    mapButtons.setVisibility(View.VISIBLE);
-                    break;
-            }
-        }
-    };
+    private LocalBroadcastManager bManager;
+    private BroadcastReceiver bReceiver = new MainBroadcastReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,11 +103,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void initializeFBLogin() {
         mCallbackManager = CallbackManager.Factory.create();
-        mLoginButton = findViewById(R.id.fbLoginButton);
+        final LoginButton mLoginButton = findViewById(R.id.fbLoginButton);
 
         // Set the initial permissions to request from the user while logging in
-        mLoginButton.setPermissions(Arrays.asList("public_profile", "user_friends",
-                "user_hometown", "user_location"));
+        mLoginButton.setPermissions(FB_PERMISSIONS);
         mLoginButton.setAuthType(AUTH_TYPE);
 
         // Register a callback to respond to the user
@@ -134,33 +124,32 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         homeIcon = BitmapDescriptorFactory.fromResource(R.drawable.home);
         locationIcon = BitmapDescriptorFactory.fromResource(R.drawable.cloc);
 
-        //        final Button homeButton = (Button) findViewById(R.id.hometownButton);
-
         // Button to control hometown overlay
-//        final Button homeButton = (Button) findViewById(R.id.hometownButton);
-//        homButton.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v)
-//            {
-//                if(Globals.isRefreshed)
-//                    Main.this.runOnUiThread(new Runnable() {
-//                        public void run(){setHomeOverlay();}});
-//            }
-//        });
+        final Button homeButton = findViewById(R.id.hometownButton);
+        homeButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mHometownsVisible = !mHometownsVisible;
+                        for (Marker marker : mHometownMarkers)
+                            marker.setVisible(mHometownsVisible);
+                    }
+                }
+        );
 
         // Button to control location overlay
-//        final Button locButton = (Button) findViewById(R.id.locButton);
-//        locButton.setOnClickListener(new OnClickListener(){
-//            public void onClick(View v)
-//            {
-//                if(Globals.isRefreshed)
-//                    Main.this.runOnUiThread(new Runnable() {
-//                        public void run(){setLocationOverlay();}});
-//            }
-//        });
-
-//        Globals.stateButton = (Button)Globals.mapActivity.findViewById(R.id.stateButton);
+        final Button locationButton = findViewById(R.id.locButton);
+        locationButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mLocationsVisible = !mLocationsVisible;
+                        for (Marker marker : mLocationMarkers)
+                            marker.setVisible(mLocationsVisible);
+                    }
+                }
+        );
     }
-
 
     public void sendGraphRequests() {
         new GraphRequest(AccessToken.getCurrentAccessToken(),
@@ -172,7 +161,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         new GraphRequest(AccessToken.getCurrentAccessToken(),
                 "/me/friends",
                 null, HttpMethod.GET,
-                new FriendsInfoCallBack()
+                new FriendsInfoCallBack(this)
         ).executeAsync();
     }
 
@@ -196,32 +185,39 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void updateUserInfoOnMap() {
-        if (mLoggedUser != null) {
-            String home = mLoggedUser.getUserHometown();
-            String location = mLoggedUser.getUserLocation();
-            LatLng latLong;
-            MarkerOptions markerOpt;
+        String home = mLoggedUser.getUserInfo().getUserHometown();
+        String location = mLoggedUser.getUserInfo().getUserLocation();
+        Marker marker;
 
-            if (location != null) {
-                latLong = getLatLongFromString(location, this);
-                markerOpt = getMarkerOption(locationIcon, latLong, "User's location");
-                mMap.addMarker(markerOpt);
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLong));
-            }
-            if (home != null) {
-                latLong = getLatLongFromString(home, this);
-                markerOpt = getMarkerOption(homeIcon, latLong, "User's hometown");
-                mMap.addMarker(markerOpt);
-                if (location == null) {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLong));
-                }
+        if (location != null) {
+            marker = setMarkerOnMap(location, false, "User's location");
+            mLocationMarkers.add(marker);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+        }
+        if (home != null) {
+            marker = setMarkerOnMap(home, true, "User's hometown");
+            mHometownMarkers.add(marker);
+            if (location == null) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
             }
         }
+    }
+
+    private Marker setMarkerOnMap(String place, boolean isHome, String markerTitle) {
+        LatLng latLong = getLatLongFromString(place, this);
+        @NotNull
+        MarkerOptions markerOpt = getMarkerOption(isHome ? homeIcon : locationIcon, latLong, markerTitle);
+        return mMap.addMarker(markerOpt);
     }
 
     public void onUserLogout() {
         mMap.clear();
         mLoggedUser = null;
+        mapButtons.setVisibility(View.INVISIBLE);
+        mHometownMarkers.clear();
+        mLocationMarkers.clear();
+        mHometownsVisible = true;
+        mLocationsVisible = true;
     }
 
     @Override
@@ -234,5 +230,29 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onDestroy() {
         super.onDestroy();
         bManager.unregisterReceiver(bReceiver);
+    }
+
+    private class MainBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() == null)
+                return;
+
+            switch (intent.getAction()) {
+                case LOGGED_USER_INFO:
+                    mLoggedUser.setUserInfo(intent.getParcelableExtra(LOGGED_USER_INFO));
+                    updateUserInfoOnMap();
+                    mapButtons.setVisibility(View.VISIBLE);
+                    break;
+                case LOGGED_USER_FRIENDS:
+                    mLoggedUser.setUserFriends(intent.getStringArrayListExtra(LOGGED_USER_FRIENDS));
+                    //updateUserInfoOnMap();
+                    //todo
+
+
+                    mapButtons.setVisibility(View.VISIBLE);
+                    break;
+            }
+        }
     }
 }

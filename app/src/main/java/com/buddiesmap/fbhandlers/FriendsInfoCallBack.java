@@ -3,6 +3,8 @@ package com.buddiesmap.fbhandlers;
 import android.content.Intent;
 import android.util.Log;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.buddiesmap.MainActivity;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
@@ -11,15 +13,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 public class FriendsInfoCallBack implements GraphRequest.Callback {
-    private final UserInfo mLoggedUser;
-    private final List<String> mFriendslist = new ArrayList<>();
+    private MainActivity mainActivity;
+    private ArrayList<String> mFriendslist;
 
-    public FriendsInfoCallBack() {
-        mLoggedUser = new UserInfo();
+    public FriendsInfoCallBack(MainActivity activity) {
+        mainActivity = activity;
     }
 
     public void onCompleted(GraphResponse response) {
@@ -29,23 +31,14 @@ public class FriendsInfoCallBack implements GraphRequest.Callback {
             JSONObject responseObject = response.getJSONObject();
             JSONArray dataArray = responseObject.getJSONArray("data");
 
+            mFriendslist = new ArrayList<>(dataArray.length());
+
             for (int i = 0; i < dataArray.length(); i++) {
                 JSONObject dataObject = dataArray.getJSONObject(i);
                 String fbId = dataObject.getString("id");
-                String fbName = dataObject.getString("name");
-                Log.d("FbId", fbId);
-                Log.d("FbName", fbName);
                 mFriendslist.add(fbId);
             }
-            Log.e("fbfriendList", mFriendslist.toString());
-//            List<String> list = mFriendslist;
-//            String friends;
-//            if (list.size() > 0) {
-//                friends = list.toString();
-//                if (friends.contains("[")) {
-//                    friends = (friends.substring(1, friends.length() - 1));
-//                }
-//            }
+            Log.d("fbfriendList", mFriendslist.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -55,8 +48,7 @@ public class FriendsInfoCallBack implements GraphRequest.Callback {
 
     private void sendBackIntent() {
         Intent rtReturn = new Intent(MainActivity.LOGGED_USER_FRIENDS);
-        //TODO
-//        rtReturn.putExtra("friends", mFriendslist);
-//        LocalBroadcastManager.getInstance(null).sendBroadcast(rtReturn);
+        rtReturn.putStringArrayListExtra(MainActivity.LOGGED_USER_FRIENDS, mFriendslist);
+        LocalBroadcastManager.getInstance(mainActivity).sendBroadcast(rtReturn);
     }
 }
