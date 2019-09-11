@@ -10,7 +10,7 @@ public class UserInfo implements Parcelable {
     private String userLocation;
     private String userHometown;
 
-    UserInfo() {
+    public UserInfo() {
     }
 
     private UserInfo(@NotNull Parcel in) {
@@ -23,7 +23,7 @@ public class UserInfo implements Parcelable {
         return userName;
     }
 
-    void setUserName(String userName) {
+    public void setUserName(String userName) {
         this.userName = userName;
     }
 
@@ -31,7 +31,7 @@ public class UserInfo implements Parcelable {
         return userLocation;
     }
 
-    void setUserLocation(String userLocation) {
+    public void setUserLocation(String userLocation) {
         this.userLocation = userLocation;
     }
 
@@ -39,7 +39,7 @@ public class UserInfo implements Parcelable {
         return userHometown;
     }
 
-    void setUserHometown(String userHometown) {
+    public void setUserHometown(String userHometown) {
         this.userHometown = userHometown;
     }
 

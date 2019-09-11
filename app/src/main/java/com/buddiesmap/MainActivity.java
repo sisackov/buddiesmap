@@ -5,10 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -37,6 +43,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,8 +56,12 @@ import static com.buddiesmap.MapUtils.getMarkerOption;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    public static final String LOGGED_USER_INFO = "com.buddiesmap.LOGGED_USER_INFO";
+    public static final String LOGGED_USER_INF = "com.buddiesmap.LOGGED_USER_INFO";
+    public static final String LOGGED_USER_REQUEST = "/me?fields=name,hometown,location";
     public static final String LOGGED_USER_FRIENDS = "com.buddiesmap.LOGGED_USER_FRIENDS";
+    public static final int LOGGED_USER_INFO = 1;
+    public static final int FRIEND_USER_INFO = 2;
+    public static final int CHILD_THREAD_QUIT_LOOPER = 3;
     private static final String AUTH_TYPE = "rerequest";
     private final List<String> FB_PERMISSIONS = Arrays.asList("public_profile", "user_friends",
             "user_hometown", "user_location");
@@ -61,14 +73,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private boolean mHometownsVisible = true;
     private boolean mLocationsVisible = true;
-
     private LinearLayout mapButtons;
     private CallbackManager mCallbackManager;
-
     private BlockingQueue<UserInfo> mBlockingQ = new LinkedBlockingDeque<>();
-
     private LocalBroadcastManager bManager;
     private BroadcastReceiver bReceiver = new MainBroadcastReceiver();
+    private Handler mainThreadHandler;
+    private int mNumOfFriends = 0;
+    private int mNumOfFriendsOnMap = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,13 +107,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private void initializeBroadcasts() {
         bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(LOGGED_USER_INFO);
+        intentFilter.addAction(LOGGED_USER_INF);
         intentFilter.addAction(LOGGED_USER_FRIENDS);
 
         bManager.registerReceiver(bReceiver, intentFilter);
     }
 
     private void initializeFBLogin() {
+        mainThreadHandler = new MyHandler(Looper.getMainLooper(), MainActivity.this);
+
         mCallbackManager = CallbackManager.Factory.create();
         final LoginButton mLoginButton = findViewById(R.id.fbLoginButton);
 
@@ -153,9 +167,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void sendGraphRequests() {
         new GraphRequest(AccessToken.getCurrentAccessToken(),
-                "/me?fields=name,hometown,location",
+                LOGGED_USER_REQUEST,
                 null, HttpMethod.GET,
-                new UserInfoCallBack(this)
+                new UserInfoCallBack(this, mainThreadHandler)
         ).executeAsync();
 
         new GraphRequest(AccessToken.getCurrentAccessToken(),
@@ -218,6 +232,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mLocationMarkers.clear();
         mHometownsVisible = true;
         mLocationsVisible = true;
+        mNumOfFriends = 0;
+        mNumOfFriendsOnMap = 0;
     }
 
     @Override
@@ -232,6 +248,42 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         bManager.unregisterReceiver(bReceiver);
     }
 
+    private class MyHandler extends Handler {
+        WeakReference<MainActivity> mActivityReference;
+
+        MyHandler(Looper looper, MainActivity activity) {
+            super(looper);
+            mActivityReference = new WeakReference<MainActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            Log.d("MAIN_THREAD", "Receive message from child thread.");
+            final MainActivity activity = mActivityReference.get();
+            UserInfo userInfo;
+
+            if (activity != null) {
+                if (msg.what == LOGGED_USER_INFO) {
+                    userInfo = (UserInfo) msg.obj;
+                    mLoggedUser.setUserInfo(userInfo);
+                    updateUserInfoOnMap();
+                    mapButtons.setVisibility(View.VISIBLE);
+                } else if (msg.what == FRIEND_USER_INFO) {
+                    userInfo = (UserInfo) msg.obj;
+                    mLoggedUser.addFriendInfo(userInfo);
+                    activity.mHometownMarkers.add(activity.setMarkerOnMap(userInfo.getUserHometown(), true, userInfo.getUserName()));
+                    activity.mLocationMarkers.add(activity.setMarkerOnMap(userInfo.getUserLocation(), false, userInfo.getUserName()));
+
+
+
+                    Toast.makeText(activity, "Task one execute.", Toast.LENGTH_LONG);
+                } else if (msg.what == CHILD_THREAD_QUIT_LOOPER) {
+                    Toast.makeText(activity, "Quit child thread looper.", Toast.LENGTH_LONG);
+                }
+            }
+        }
+    }
+
     private class MainBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -239,18 +291,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
 
             switch (intent.getAction()) {
-                case LOGGED_USER_INFO:
-                    mLoggedUser.setUserInfo(intent.getParcelableExtra(LOGGED_USER_INFO));
-                    updateUserInfoOnMap();
-                    mapButtons.setVisibility(View.VISIBLE);
-                    break;
+//                case LOGGED_USER_INF:
+//                    mLoggedUser.setUserInfo(intent.getParcelableExtra(LOGGED_USER_INF));
+//                    updateUserInfoOnMap();
+//                    mapButtons.setVisibility(View.VISIBLE);
+//                    break;
                 case LOGGED_USER_FRIENDS:
-                    mLoggedUser.setUserFriends(intent.getStringArrayListExtra(LOGGED_USER_FRIENDS));
-                    //updateUserInfoOnMap();
-                    //todo
+                    ArrayList<String> userFriendIDs = intent.getStringArrayListExtra(LOGGED_USER_FRIENDS);
+                    mLoggedUser.setUserFriendIDs(userFriendIDs);
+                    mNumOfFriends = userFriendIDs.size();
 
+                    for (String fbID : userFriendIDs) {
+                        new GraphRequest(AccessToken.getCurrentAccessToken(),
+                                "/" + fbID + "?fields=name,hometown,location",
+                                null, HttpMethod.GET,
+                                new UserInfoCallBack(MainActivity.this, mainThreadHandler)
+                        ).executeAsync();
+                    }
 
-                    mapButtons.setVisibility(View.VISIBLE);
+//                    mapButtons.setVisibility(View.VISIBLE);
                     break;
             }
         }

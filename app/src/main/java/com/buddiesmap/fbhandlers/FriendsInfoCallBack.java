@@ -13,8 +13,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+
+import static com.buddiesmap.MainActivity.LOGGED_USER_FRIENDS;
 
 public class FriendsInfoCallBack implements GraphRequest.Callback {
     private MainActivity mainActivity;
@@ -47,8 +48,8 @@ public class FriendsInfoCallBack implements GraphRequest.Callback {
     }
 
     private void sendBackIntent() {
-        Intent rtReturn = new Intent(MainActivity.LOGGED_USER_FRIENDS);
-        rtReturn.putStringArrayListExtra(MainActivity.LOGGED_USER_FRIENDS, mFriendslist);
+        Intent rtReturn = new Intent(LOGGED_USER_FRIENDS);
+        rtReturn.putStringArrayListExtra(LOGGED_USER_FRIENDS, mFriendslist);
         LocalBroadcastManager.getInstance(mainActivity).sendBroadcast(rtReturn);
     }
 }

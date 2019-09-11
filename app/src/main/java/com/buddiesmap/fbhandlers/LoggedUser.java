@@ -1,30 +1,15 @@
 package com.buddiesmap.fbhandlers;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class LoggedUser {
     private static LoggedUser mInstance = null;
     private UserInfo mUserInfo = null;
-    private ArrayList<String> mUserFriends;
+    private ArrayList<String> mUserFriendIDs;
+    private Vector<UserInfo> mUserFriendInfos;
 
     private LoggedUser() {
-
-    }
-
-    public UserInfo getUserInfo() {
-        return mUserInfo;
-    }
-
-    public void setUserInfo(UserInfo userInfo) {
-        mUserInfo = userInfo;
-    }
-
-    public ArrayList<String> getUserFriends() {
-        return mUserFriends;
-    }
-
-    public void setUserFriends(ArrayList<String> userFriends) {
-        mUserFriends = userFriends;
     }
 
     public static LoggedUser getInstance() {
@@ -38,10 +23,30 @@ public class LoggedUser {
         return mInstance;
     }
 
+    public UserInfo getUserInfo() {
+        return mUserInfo;
+    }
+
+    public void setUserInfo(UserInfo userInfo) {
+        mUserInfo = userInfo;
+    }
+
+    public ArrayList<String> getUserFriendIDs() {
+        return mUserFriendIDs;
+    }
+
+    public void setUserFriendIDs(ArrayList<String> userFriends) {
+        mUserFriendIDs = userFriends;
+        mUserFriendInfos = new Vector<>(userFriends.size());
+    }
+
+    public void addFriendInfo(UserInfo userInfo) {
+        mUserFriendInfos.add(userInfo);
+    }
 
     public void destroy() {
         mInstance = null;
         mUserInfo = null;
-        mUserFriends = null;
+        mUserFriendIDs = null;
     }
 }
