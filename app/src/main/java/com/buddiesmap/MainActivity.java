@@ -12,6 +12,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -69,6 +72,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private final LinkedList<Marker> mLocationMarkers = new LinkedList<>();
     BitmapDescriptor homeIcon;
     BitmapDescriptor locationIcon;
+    RelativeLayout mProgressBarLayout;
+    ProgressBar mProgressBar;
+    TextView mProgressBarTextView;
     private LoggedUser mLoggedUser = LoggedUser.getInstance();
     private GoogleMap mMap;
     private boolean mHometownsVisible = true;
@@ -86,6 +92,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        mProgressBarLayout = findViewById(R.id.progressBarLayout);
+        mProgressBar = findViewById(R.id.progressBar);
+        mProgressBarTextView = findViewById(R.id.progressBarTextView);
+        mProgressBarLayout.setVisibility(View.INVISIBLE);
 
         mapButtons = findViewById(R.id.mapButtons);
         mapButtons.setVisibility(View.INVISIBLE);// these buttons are not needed before the login to FB
@@ -248,6 +259,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         bManager.unregisterReceiver(bReceiver);
     }
 
+    private void updateProgressBar() {
+        mProgressBar.setProgress(mNumOfFriendsOnMap * 100 / mNumOfFriends);
+        mProgressBarTextView.setText("Loading " + mNumOfFriendsOnMap + "/" + mNumOfFriends);
+        if (mNumOfFriendsOnMap == mNumOfFriends) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mProgressBarLayout.setVisibility(View.INVISIBLE);
+                }
+            }, 1500);
+        }
+    }
+
     private class MyHandler extends Handler {
         WeakReference<MainActivity> mActivityReference;
 
@@ -274,7 +298,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     activity.mHometownMarkers.add(activity.setMarkerOnMap(userInfo.getUserHometown(), true, userInfo.getUserName()));
                     activity.mLocationMarkers.add(activity.setMarkerOnMap(userInfo.getUserLocation(), false, userInfo.getUserName()));
 
-
+                    mNumOfFriendsOnMap++;
+                    updateProgressBar();
 
                     Toast.makeText(activity, "Task one execute.", Toast.LENGTH_LONG);
                 } else if (msg.what == CHILD_THREAD_QUIT_LOOPER) {
@@ -291,15 +316,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
 
             switch (intent.getAction()) {
-//                case LOGGED_USER_INF:
-//                    mLoggedUser.setUserInfo(intent.getParcelableExtra(LOGGED_USER_INF));
-//                    updateUserInfoOnMap();
-//                    mapButtons.setVisibility(View.VISIBLE);
-//                    break;
                 case LOGGED_USER_FRIENDS:
                     ArrayList<String> userFriendIDs = intent.getStringArrayListExtra(LOGGED_USER_FRIENDS);
                     mLoggedUser.setUserFriendIDs(userFriendIDs);
                     mNumOfFriends = userFriendIDs.size();
+
+                    mProgressBarLayout.setVisibility(View.VISIBLE);
+                    updateProgressBar();
 
                     for (String fbID : userFriendIDs) {
                         new GraphRequest(AccessToken.getCurrentAccessToken(),
@@ -309,7 +332,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                         ).executeAsync();
                     }
 
-//                    mapButtons.setVisibility(View.VISIBLE);
                     break;
             }
         }

@@ -1,14 +1,9 @@
 package com.buddiesmap.fbhandlers;
 
 
-import android.content.Intent;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
-import android.os.SystemClock;
 import android.util.Log;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.buddiesmap.MainActivity;
 import com.facebook.GraphRequest;
@@ -17,15 +12,14 @@ import com.facebook.GraphResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.buddiesmap.MainActivity.LOGGED_USER_INF;
+import static com.buddiesmap.MainActivity.FRIEND_USER_INFO;
 import static com.buddiesmap.MainActivity.LOGGED_USER_INFO;
 import static com.buddiesmap.MainActivity.LOGGED_USER_REQUEST;
-import static com.buddiesmap.MainActivity.FRIEND_USER_INFO;
 
 public class UserInfoCallBack implements GraphRequest.Callback {
+    private static int counter = 0;
     private MainActivity mainActivity;
     private Handler mHandler;
-    private static int counter = 0;
     private int myCount = 0;
 
     public UserInfoCallBack(MainActivity activity, Handler mainThreadHandler) {
