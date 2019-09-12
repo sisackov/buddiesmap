@@ -59,7 +59,6 @@ import static com.buddiesmap.MapUtils.getMarkerOption;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    public static final String LOGGED_USER_INF = "com.buddiesmap.LOGGED_USER_INFO";
     public static final String LOGGED_USER_REQUEST = "/me?fields=name,hometown,location";
     public static final String LOGGED_USER_FRIENDS = "com.buddiesmap.LOGGED_USER_FRIENDS";
     public static final int LOGGED_USER_INFO = 1;
@@ -118,7 +117,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private void initializeBroadcasts() {
         bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(LOGGED_USER_INF);
         intentFilter.addAction(LOGGED_USER_FRIENDS);
 
         bManager.registerReceiver(bReceiver, intentFilter);
@@ -149,31 +147,27 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         homeIcon = BitmapDescriptorFactory.fromResource(R.drawable.home);
         locationIcon = BitmapDescriptorFactory.fromResource(R.drawable.cloc);
 
-        // Button to control hometown overlay
+        // Button to control hometown markers
         final Button homeButton = findViewById(R.id.hometownButton);
-        homeButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mHometownsVisible = !mHometownsVisible;
-                        for (Marker marker : mHometownMarkers)
-                            marker.setVisible(mHometownsVisible);
-                    }
-                }
-        );
+        homeButton.setOnClickListener(v -> changeHometownsVisibility());
 
-        // Button to control location overlay
+        // Button to control location markers
         final Button locationButton = findViewById(R.id.locButton);
-        locationButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mLocationsVisible = !mLocationsVisible;
-                        for (Marker marker : mLocationMarkers)
-                            marker.setVisible(mLocationsVisible);
-                    }
-                }
-        );
+        locationButton.setOnClickListener(v -> changeLocationsVisibility());
+    }
+
+    private void changeHometownsVisibility() {
+        mHometownsVisible = !mHometownsVisible;
+        for (Marker marker : mHometownMarkers) {
+            marker.setVisible(mHometownsVisible);
+        }
+    }
+
+    private void changeLocationsVisibility() {
+        mLocationsVisible = !mLocationsVisible;
+        for (Marker marker : mLocationMarkers) {
+            marker.setVisible(mLocationsVisible);
+        }
     }
 
     public void sendGraphRequests() {
@@ -260,15 +254,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void updateProgressBar() {
-        mProgressBar.setProgress(mNumOfFriendsOnMap * 100 / mNumOfFriends);
-        mProgressBarTextView.setText("Loading " + mNumOfFriendsOnMap + "/" + mNumOfFriends);
+        mProgressBar.setProgress(mNumOfFriendsOnMap, true/* * 100 / mNumOfFriends*/);
+//        mProgressBar.setSecondaryProgress((mNumOfFriendsOnMap > 0 ? mNumOfFriendsOnMap :
+//                mNumOfFriendsOnMap - 1) * 100 / mNumOfFriends);
+        String progressTxt = "Loading " + mNumOfFriendsOnMap + "/" + mNumOfFriends;
+        mProgressBarTextView.setText(progressTxt);
+
         if (mNumOfFriendsOnMap == mNumOfFriends) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mProgressBarLayout.setVisibility(View.INVISIBLE);
-                }
-            }, 1500);
+            //After completing the loading of all locations we delay the hiding of the progress bar
+            //so the user will have a chance to see
+            new Handler().postDelayed(() -> mProgressBarLayout.setVisibility(View.INVISIBLE)
+                    , 1000);
         }
     }
 
@@ -277,7 +273,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         MyHandler(Looper looper, MainActivity activity) {
             super(looper);
-            mActivityReference = new WeakReference<MainActivity>(activity);
+            mActivityReference = new WeakReference<>(activity);
         }
 
         @Override
@@ -298,12 +294,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     activity.mHometownMarkers.add(activity.setMarkerOnMap(userInfo.getUserHometown(), true, userInfo.getUserName()));
                     activity.mLocationMarkers.add(activity.setMarkerOnMap(userInfo.getUserLocation(), false, userInfo.getUserName()));
 
+
                     mNumOfFriendsOnMap++;
                     updateProgressBar();
 
-                    Toast.makeText(activity, "Task one execute.", Toast.LENGTH_LONG);
+                    Toast.makeText(activity, "Task one execute.", Toast.LENGTH_LONG).show();
                 } else if (msg.what == CHILD_THREAD_QUIT_LOOPER) {
-                    Toast.makeText(activity, "Quit child thread looper.", Toast.LENGTH_LONG);
+                    Toast.makeText(activity, "Quit child thread looper.", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -318,10 +315,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             switch (intent.getAction()) {
                 case LOGGED_USER_FRIENDS:
                     ArrayList<String> userFriendIDs = intent.getStringArrayListExtra(LOGGED_USER_FRIENDS);
+                    if (userFriendIDs == null) {
+                        return;
+                    }
+
                     mLoggedUser.setUserFriendIDs(userFriendIDs);
                     mNumOfFriends = userFriendIDs.size();
 
                     mProgressBarLayout.setVisibility(View.VISIBLE);
+                    mProgressBar.setMax(mNumOfFriends);
                     updateProgressBar();
 
                     for (String fbID : userFriendIDs) {

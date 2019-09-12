@@ -8,35 +8,13 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!--<Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:layout_marginTop="20dp"
-        android:padding="10dp"
-        android:paddingEnd="10dp"
-        android:text="Demo Button" />-->
-    <!--style="?android:attr/progressBarStyleHorizontal"-->
-    <!--<ProgressBar
-        android:id="@+id/progress_bar"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="200dp"
-        android:indeterminate="false"
-        android:max="100"
-        android:minWidth="250dp"
-        android:minHeight="50dp"
-        android:progress="0" />-->
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <RelativeLayout
         android:id="@+id/progressBarLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="200dp"
+        android:layout_marginEnd="30dp"
         tools:context=".MainActivity">
 
         <ProgressBar
@@ -44,34 +22,35 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginLeft="23dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="20dp"
             android:indeterminate="false"
+            android:minWidth="400dp"
+            android:minHeight="50dp"
+            android:progress="0" />
+        <!-- todo - fix later
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@style/CustomProgressBar"
+            android:layout_width="250dp"
+            android:layout_height="20dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:indeterminate="false"
             android:max="100"
-            android:minWidth="200dp"
-            android:minHeight="50dp"
-            android:progress="1" />
-
-        <!--<ProgressBar
-            android:id="@+id/progressBar_cyclic"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="50dp"
-            android:minWidth="50dp"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />-->
+            android:progress="0" />-->
 
         <TextView
             android:id="@+id/progressBarTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/progressBar"
-            android:layout_alignLeft="@+id/progressBar"
-            android:textSize="20sp"
-            android:textColor="@color/common_google_signin_btn_text_dark"
-            />
+            android:layout_alignStart="@+id/progressBar"
+            android:textColor="#3B19ff"
+            android:textSize="20sp" />
     </RelativeLayout>
 
     <LinearLayout
@@ -101,15 +80,6 @@
             android:drawableStart="@drawable/cloc_button"
             android:text="@string/loc_label"
             android:textSize="12sp" />
-
-        <!--<Button
-            android:id="@+id/chkButton"
-            android:layout_width="110dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button"
-            android:drawableLeft="@drawable/checkin_button"
-            android:text="@string/chck_label"
-            android:textSize="12sp" />-->
     </LinearLayout>
 
     <LinearLayout
