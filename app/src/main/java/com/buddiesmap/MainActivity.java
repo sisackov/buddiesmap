@@ -51,8 +51,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 
 import static com.buddiesmap.MapUtils.getLatLongFromString;
 import static com.buddiesmap.MapUtils.getMarkerOption;
@@ -80,7 +78,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean mLocationsVisible = true;
     private LinearLayout mapButtons;
     private CallbackManager mCallbackManager;
-    private BlockingQueue<UserInfo> mBlockingQ = new LinkedBlockingDeque<>();
+    //    private BlockingQueue<UserInfo> mBlockingQ = new LinkedBlockingDeque<>();
     private LocalBroadcastManager bManager;
     private BroadcastReceiver bReceiver = new MainBroadcastReceiver();
     private Handler mainThreadHandler;
