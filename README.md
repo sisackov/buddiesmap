@@ -15,7 +15,7 @@ This iteration of the project is updated to run on Android 7.0 Nougat.
 - Upon logging in to a Facebook a count, the locations and hometowns of
   the user and their friends are shown on the map
   
-      <img src="./misc/images/1568289419.png"  width="125"> | <img src="./misc/images/1568289449.png"  width="125">
+  <img src="./misc/images/1568289419.png"  width="125"> | <img src="./misc/images/1568289449.png"  width="125">
 
 ### In progress
 - Upon logging in to a Facebook a count the users photo would appear at
