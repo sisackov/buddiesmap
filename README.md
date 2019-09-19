@@ -1,7 +1,7 @@
 
 # BuddiesMap Project
 
-This is project was first created as final assignment in an android
+This project was first created as final assignment in an android
 course in 2011.
 
 It was developed by **Stas Isackov and Rotem Hungem**.
