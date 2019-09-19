@@ -18,7 +18,7 @@ This iteration of the project is updated to run on Android 7.0 Nougat.
   <img src="./misc/images/1568289419.png"  width="125"> | <img src="./misc/images/1568289449.png"  width="125">
 
 ### In progress
-- Upon logging in to a Facebook a count the users photo would appear at
+- Upon logging in to a Facebook account the user's photo would appear at
   the top of the screen
 - Clicking on a marker shows a list of all the friends at the markers
   location. Selecting a friend will open a dialog with an option to
