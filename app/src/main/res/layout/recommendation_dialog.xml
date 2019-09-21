@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_dialog_layout_design_user_input"
+    android:layout_width="350dp"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <TextView
+        android:id="@+id/dialogEditTitleLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:labelFor="@id/dialogEditTitle"
+        android:text="@string/dialogEditTitle_label"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+        android:id="@+id/dialogEditTitle"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:hint="@string/dialogEditTitle_hint"
+        android:inputType="textAutoComplete" />
+
+    <TextView
+        android:id="@+id/dialogEditPhoneLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:labelFor="@id/dialogEditPhone"
+        android:text="@string/dialogEditPhone_label"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+        android:id="@+id/dialogEditPhone"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:hint="@string/dialogEditPhone_hint"
+        android:inputType="phone" />
+
+    <TextView
+        android:id="@+id/dialogEditLocationLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:text="@string/dialogEditLocation_label"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+        android:id="@+id/dialogEditLocation"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:hint="@string/dialogEditLocation_hint"
+        android:inputType="textAutoComplete" />
+
+    <Button
+        android:id="@+id/dialogButtonSend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:gravity="bottom"
+        android:text="@string/send_label"
+        android:textAlignment="center"
+        android:textSize="12sp" />
+
+</LinearLayout>

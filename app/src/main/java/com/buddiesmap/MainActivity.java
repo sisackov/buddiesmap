@@ -28,6 +28,8 @@ import com.buddiesmap.fbhandlers.FriendsInfoCallBack;
 import com.buddiesmap.fbhandlers.LoggedUser;
 import com.buddiesmap.fbhandlers.UserInfo;
 import com.buddiesmap.fbhandlers.UserInfoCallBack;
+import com.buddiesmap.recommendations.AsyncHTTPRequest;
+import com.buddiesmap.recommendations.RecommendationsDialog;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -59,6 +61,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     public static final String LOGGED_USER_REQUEST = "/me?fields=name,hometown,location";
     public static final String LOGGED_USER_FRIENDS = "com.buddiesmap.LOGGED_USER_FRIENDS";
+    public static final String LOGGED_USER_FRIENDS_EXTRA = "com.buddiesmap.LOGGED_USER_FRIENDS_EXTRA";
+    public static final String HTTP_RESPONSE = "com.buddiesmap.HTTP_RESPONSE";
+    public static final String HTTP_RESPONSE_EXTRA = "com.buddiesmap.HTTP_RESPONSE_EXTRA";
     public static final int LOGGED_USER_INFO = 1;
     public static final int FRIEND_USER_INFO = 2;
     public static final int CHILD_THREAD_QUIT_LOOPER = 3;
@@ -84,6 +89,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private Handler mainThreadHandler;
     private int mNumOfFriends = 0;
     private int mNumOfFriendsOnMap = 0;
+    private RecommendationsDialog mRecommendationsDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +122,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(LOGGED_USER_FRIENDS);
+        intentFilter.addAction(HTTP_RESPONSE);
 
         bManager.registerReceiver(bReceiver, intentFilter);
     }
@@ -136,7 +143,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         AccessTokenTracker accessTokenTracker = new FacebookLogoutCallback(this);
         accessTokenTracker.startTracking();
 
-        if (AccessToken.getCurrentAccessToken() != null) {
+        if (AccessToken.getCurrentAccessToken() != null) {//fb account is logged in
             sendGraphRequests();
         }
     }
@@ -152,6 +159,21 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         // Button to control location markers
         final Button locationButton = findViewById(R.id.locButton);
         locationButton.setOnClickListener(v -> changeLocationsVisibility());
+
+        final Button recommendButton = findViewById(R.id.addRecButton);
+        recommendButton.setOnClickListener(v -> onRecommendDialog());
+
+        final Button searchButton = findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(v -> onSearchRequest());
+    }
+
+    private void onRecommendDialog() {
+        mRecommendationsDialog = new RecommendationsDialog(this, "12332754843");
+        mRecommendationsDialog.show();
+    }
+
+    private void onSearchRequest() {
+        new AsyncHTTPRequest(this).execute();
     }
 
     private void changeHometownsVisibility() {
@@ -312,7 +334,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
             switch (intent.getAction()) {
                 case LOGGED_USER_FRIENDS:
-                    ArrayList<String> userFriendIDs = intent.getStringArrayListExtra(LOGGED_USER_FRIENDS);
+                    ArrayList<String> userFriendIDs = intent.getStringArrayListExtra(LOGGED_USER_FRIENDS_EXTRA);
                     if (userFriendIDs == null) {
                         return;
                     }
@@ -332,6 +354,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                         ).executeAsync();
                     }
 
+                    break;
+                case HTTP_RESPONSE:
+                    String response = intent.getStringExtra(HTTP_RESPONSE_EXTRA);
+                    Toast.makeText(MainActivity.this, response, Toast.LENGTH_LONG).show();
                     break;
             }
         }

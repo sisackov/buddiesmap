@@ -80,6 +80,22 @@
             android:drawableStart="@drawable/cloc_button"
             android:text="@string/loc_label"
             android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/addRecButton"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:text="@string/recommend_label"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:text="@string/search_label"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <LinearLayout

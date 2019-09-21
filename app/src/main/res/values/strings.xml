@@ -9,6 +9,14 @@
     <string name="friends_list_2">Friends List</string>
     <string name="hometown_label">Homes</string>
     <string name="loc_label">Locations</string>
-    <string name="chck_label">Checkins</string>
-    <string name="state_label">Loading Data ...</string>
+    <string name="recommend_label">Recommend</string>
+    <string name="search_label">Search</string>
+    <string name="send_label">Send</string>
+    <string name="recommendation_dialog_title">Recommend!</string>
+    <string name="dialogEditTitle_label">Title</string>
+    <string name="dialogEditTitle_hint">Who/What do you recommend?</string>
+    <string name="dialogEditPhone_label">Phone</string>
+    <string name="dialogEditPhone_hint">Contact Phone</string>
+    <string name="dialogEditLocation_label">Location</string>
+    <string name="dialogEditLocation_hint">Location</string>
 </resources>

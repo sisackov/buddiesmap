@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import static com.buddiesmap.MainActivity.LOGGED_USER_FRIENDS;
+import static com.buddiesmap.MainActivity.LOGGED_USER_FRIENDS_EXTRA;
 
 public class FriendsInfoCallBack implements GraphRequest.Callback {
     private MainActivity mainActivity;
@@ -49,7 +50,7 @@ public class FriendsInfoCallBack implements GraphRequest.Callback {
 
     private void sendBackIntent() {
         Intent rtReturn = new Intent(LOGGED_USER_FRIENDS);
-        rtReturn.putStringArrayListExtra(LOGGED_USER_FRIENDS, mFriendslist);
+        rtReturn.putStringArrayListExtra(LOGGED_USER_FRIENDS_EXTRA, mFriendslist);
         LocalBroadcastManager.getInstance(mainActivity).sendBroadcast(rtReturn);
     }
 }
